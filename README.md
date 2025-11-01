@@ -5,7 +5,7 @@
 To run:
 ```bash
 npm i
-# Replace `/node_modules/react-native-webassembly/react-native-webassembly.podspec` with `replace.podspec` in repo root directory
+# Replace `/node_modules/react-native-webassembly/react-native-webassembly.podspec` with `replace.podspec`
 npx expo prebuild --platform ios
 cd ios
 pod install
