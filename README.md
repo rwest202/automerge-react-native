@@ -1,3 +1,71 @@
+# Automerge React Native Test (iOS)
+
+`react-native-webassembly` fails on Expo Go app, running on iOS directly.
+
+To run:
+```bash
+npm i
+# Replace `/node_modules/react-native-webassembly/react-native-webassembly.podspec` with `replace.podspec`
+npx expo prebuild --platform ios
+cd ios
+pod install
+cd ..
+npx expo run:ios
+```
+
+I attempted to install automerge into a base React Native project. The call to WebAssembly.initialize is made, but unhelpfully fails with `Error: Failed to instantiate WebAssembly.`
+
+The import happens in `/app/(tabs)/write.tsx`
+- import `crypto.getRandomValues` polyfill, unsure if this is needed.
+- import `WebAssembly` from `react-native-webassembly`.
+- Apply to global object, I was able to confirm from logging that it was used from `initializeWasm`
+- Call `initializeWasm` with the result of a fetch and... fails. I get the same error when I import wasm directly so this issue seems to be in the actual loading of the module.
+
+```TypeScript
+import "react-native-get-random-values";
+
+import * as WebAssembly from "react-native-webassembly";
+
+import { initializeWasm } from "@automerge/automerge/slim";
+
+if (!global.WebAssembly) {
+  global.WebAssembly = WebAssembly;
+}
+
+initializeWasm(
+  fetch("https://esm.sh/@automerge/automerge@3.1.2/dist/automerge.wasm")
+    .then((resp) => resp.arrayBuffer())
+    .then((data) => new Uint8Array(data))
+);
+```
+
+metro.config.js - This was required to fix import errors.
+```TypeScript
+const { getDefaultConfig } = require("expo/metro-config");
+
+module.exports = (() => {
+  const config = getDefaultConfig(__dirname);
+
+  const { resolver } = config;
+
+  config.resolver = {
+    ...resolver,
+    assetExts: resolver.assetExts.concat(["wasm"]),
+    resolveRequest: (context, moduleName, platform) => {
+      if (moduleName.includes("automerge")) {
+        const result = require.resolve(moduleName); // gets CommonJS version
+        return context.resolveRequest(context, result, platform);
+      }
+      // otherwise chain to the standard Metro resolver.
+      return context.resolveRequest(context, moduleName, platform);
+    },
+  };
+
+  return config;
+})();
+
+```
+
 # Welcome to your Expo app 👋
 
 This is an [Expo](https://expo.dev) project created with [`create-expo-app`](https://www.npmjs.com/package/create-expo-app).
