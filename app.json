@@ -9,7 +9,8 @@
     "userInterfaceStyle": "automatic",
     "newArchEnabled": true,
     "ios": {
-      "supportsTablet": true
+      "supportsTablet": true,
+      "bundleIdentifier": "com.rwesty202.automerge-react-native"
     },
     "android": {
       "adaptiveIcon": {
@@ -26,6 +27,7 @@
       "favicon": "./assets/images/favicon.png"
     },
     "plugins": [
+      "react-native-webassembly",
       "expo-router",
       [
         "expo-splash-screen",
