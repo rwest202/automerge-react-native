@@ -1,4 +1,17 @@
-# Automerge React Native Test
+# Automerge React Native Test (iOS)
+
+`react-native-webassembly` fails on Expo Go app, running on iOS directly.
+
+To run:
+```bash
+npm i
+# Replace `/node_modules/react-native-webassembly/react-native-webassembly.podspec` with `replace.podspec` in repo root directory
+npx expo prebuild --platform ios
+cd ios
+pod install
+cd ..
+npx expo run:ios
+```
 
 I attempted to install automerge into a base React Native project. The call to WebAssembly.initialize is made, but unhelpfully fails with `Error: Failed to instantiate WebAssembly.`
 
